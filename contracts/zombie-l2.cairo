@@ -3,7 +3,7 @@
 
 from starkware.starknet.common.messages import send_message_to_l1
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.starknet.common.syscalls import get_contract_address, get_caller_address
+from starkware.starknet.common.syscalls import get_contract_address, get_caller_address, call_contract
 
 
 ######### Storage variables
@@ -40,13 +40,19 @@ end
 # A L1 handler to receive a payload from the brain
 @l1_handler
 func execute{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-        from_address : felt):
+        from_address : felt, to: felt, selector: felt, calldata_len: felt, calldata: felt*):
         # Check if it L1caller is the L1 brain
         let (brain) = l1_brain_address_stored.read()
         with_attr error_message("Zombie: caller is not brain"):
                 assert brain = from_address
         end
         # Execute the call
+        call_contract(
+            contract_address=to,
+            function_selector=selector,
+            calldata_size=calldata_len,
+            calldata=calldata
+        )
     return ()
 end
 
