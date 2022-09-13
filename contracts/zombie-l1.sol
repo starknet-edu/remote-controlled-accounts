@@ -7,7 +7,8 @@ import "./IStarknetCore.sol";
 contract Zombie {
         IStarknetCore private starknetCore;
         uint256 public l2Brain;
-
+        event callDataReconstructed(bytes executeCalldata);
+ 
         constructor(address starknetCore_, uint256 l2Brain_) 
         {
                 starknetCore = IStarknetCore(starknetCore_);
@@ -41,4 +42,18 @@ contract Zombie {
                 );
                 return(success, data);
         } 
+        function executeTest(uint256[] memory payload) public payable 
+        {
+                address to = address(uint160(payload[0]));
+                uint256 value = payload[1];
+                uint256 gas = payload[2];
+                bytes memory executeCalldata;
+                for (uint256 i = 3; i < payload.length; i++)
+                {
+                        executeCalldata = abi.encodePacked(executeCalldata, payload[i]);
+                }
+        } 
+
+        receive () external payable
+        {}
 }
