@@ -108,7 +108,7 @@ func execute_no_guard{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
 @l1_handler
 @raw_input
-func execute_test_simple{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func execute_test_no_array{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     selector: felt, calldata_size: felt, calldata: felt*
 ) {
     
@@ -129,7 +129,7 @@ func execute_test_simple{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
 
 @l1_handler
 @raw_input
-func execute_test{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func execute_test_array{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     selector: felt, calldata_size: felt, calldata: felt*
 ) {
     
