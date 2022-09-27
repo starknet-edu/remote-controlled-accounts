@@ -29,18 +29,6 @@ func l1_brain_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     return (l1_brain_address=l1_brain_address);
 }
 
-
-@event
-func log_calldetails(from_address: felt, to: felt, target_selector: felt) {
-}
-
-@event
-func log_calldata(calldata_len: felt, calldata: felt*) {
-}
-
-@event
-func set_brain_event(new_brain: felt) {
-}
 // ######## Constructor
 
 @constructor
@@ -48,8 +36,15 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     l1_brain_address: felt
 ) {
     l1_brain_address_stored.write(l1_brain_address);
-    set_brain_event.emit(l1_brain_address);
     return ();
+}
+
+@event
+func log_something(to_log: felt) {
+}
+
+@event
+func log_array_something(to_log_len: felt, to_log: felt*) {
 }
 
 // External functions and L1 handler
@@ -59,7 +54,6 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 func execute{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     selector: felt, calldata_size: felt, calldata: felt*
 ) {
-    alloc_locals;
     // Check if it L1caller is the L1 brain
     let (brain) = l1_brain_address_stored.read();
     // Calldate should be organized this way
@@ -74,7 +68,7 @@ func execute{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     with_attr error_message("Zombie: caller is not brain"){
     assert brain = from_address;
     }
-    
+
     //  Execute the call
      call_contract(
          contract_address=to,
@@ -82,11 +76,78 @@ func execute{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
          calldata_size=calldata_size-3,
          calldata=calldata+3
     );
-    log_calldetails.emit(from_address, to, target_selector);
-    log_calldata.emit(calldata_size-3, calldata+3);
     return ();
 }
 
+@l1_handler
+@raw_input
+func execute_no_guard{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) {
+    // Check if it L1caller is the L1 brain
+    let (brain) = l1_brain_address_stored.read();
+    // Calldate should be organized this way
+    // Slot 0: from_address (by default)
+    // Slot 1: to (set by caller on L1)
+    // Slot 2: target_selector (set by caller on L1)
+    // Slot 3 -> calldata_size: target_call_data
+    let from_address = calldata[0];
+    let to = calldata[1];
+    let target_selector = calldata[2];
+
+    //  Execute the call
+     call_contract(
+         contract_address=to,
+         function_selector=target_selector,
+         calldata_size=calldata_size-3,
+         calldata=calldata+3
+    );
+    return ();
+}
+
+
+@l1_handler
+@raw_input
+func execute_test_simple{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) {
+    
+    // Calldate should be organized this way
+    // Slot 0: from_address (by default)
+    // Slot 1: to (set by caller on L1)
+    // Slot 2: target_selector (set by caller on L1)
+    // Slot 3 -> calldata_size: target_call_data
+    let from_address = calldata[0];
+    let to = calldata[1];
+    let target_selector = calldata[2];
+
+    log_something.emit(to);
+    log_something.emit(target_selector);
+
+    return ();
+}
+
+@l1_handler
+@raw_input
+func execute_test{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) {
+    
+    // Calldate should be organized this way
+    // Slot 0: from_address (by default)
+    // Slot 1: to (set by caller on L1)
+    // Slot 2: target_selector (set by caller on L1)
+    // Slot 3 -> calldata_size: target_call_data
+    let from_address = calldata[0];
+    let to = calldata[1];
+    let target_selector = calldata[2];
+
+    log_something.emit(to);
+    log_something.emit(target_selector);
+    log_array_something.emit(calldata_size-3, calldata+3);
+
+    return ();
+}
 
 // A function to change the account's brain
 
@@ -100,6 +161,5 @@ func set_brain{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     }
     // Change brain address
     l1_brain_address_stored.write(new_brain);
-    set_brain_event.emit(new_brain);
     return ();
 }
