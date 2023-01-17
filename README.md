@@ -3,8 +3,8 @@
 
 ## Description
 The goal of this project is to create two smart contracts that allow communication between Ethereum and StarkNet.
-- `zombie-l1.sol` is an Ethereum contract that receives an arbitrary command from a starknet contract and executes it (L2 -> L1)
-- `zombie-l2.cairo` is a StarkNet contract that receives an arbitrary command from an Ethereum contract and executes it (L1 -> L2)
+- [`zombie-l1.sol`](contracts/zombie-l1.sol) is an Ethereum contract that receives an arbitrary command from a starknet contract and executes it (L2 -> L1)
+- [`zombie-l2.cairo`](contracts/zombie-l2.cairo) is a StarkNet contract that receives an arbitrary command from an Ethereum contract and executes it (L1 -> L2)
 
 ## Design goals and potential usage
 Use cases for such contracts are multiple: 
@@ -25,8 +25,8 @@ A LOT remains to be done, and you can help!
 
 ### L1 -> L2 zombie
 #### What has been done
-- `zombie-l2.cairo` is functional but needs to be tested more extensively
-- `MessageSender.sol` is currently used to test that `zombie-l2.cairo` receives messages. It needs to be turned into a generic contract that can be inherited from by a solidity contract, to make it easy to call the L2 function. It can probably be turned into a library
+- [`zombie-l2.cairo`](contracts/zombie-l2.cairo) is functional but needs to be tested more extensively
+- [`MessageSender.sol`](contracts/MessageSender.sol) is currently used to test that `zombie-l2.cairo` receives messages. It needs to be turned into a generic contract that can be inherited from by a solidity contract, to make it easy to call the L2 function. It can probably be turned into a library
 
 #### What you can do
 - Write test cases for `zombie-l2.cairo`
@@ -36,7 +36,7 @@ A LOT remains to be done, and you can help!
 
 ### L2 -> L1 zombie
 #### What has been done
-- `zombie-l1.sol` has functionnalities to change the L2 brain, but is not functional to execute L2 messages. It has two functions `execute()` and `executeTest()` which I used to execute calls to other contracts based on a uint array; I'll describe the two paths to make these functional below
+- [`zombie-l1.sol`](contracts/zombie-l1.sol)  has functionnalities to change the L2 brain, but is not functional to execute L2 messages. It has two functions `execute()` and `executeTest()` which I used to execute calls to other contracts based on a uint array; I'll describe the two paths to make these functional below
 
 #### What you can do
 - Make `zombie-l1.sol` functionnal. The issue is "how to turn a starknet message, which is an array of uint256, into calldata that can be sent in a call to another Ethereum contract". There are two paths here:
